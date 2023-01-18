@@ -2,8 +2,8 @@
 CREATE TABLE "Transaction" (
     "id" INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     "amount" REAL NOT NULL,
-    "number_installments" INTEGER NOT NULL,
-    "payment_method" TEXT NOT NULL,
+    "numberInstallments" INTEGER NOT NULL,
+    "paymentMethod" TEXT NOT NULL,
     "date" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 

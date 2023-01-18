@@ -13,10 +13,10 @@ datasource db {
 model Transaction {
   id    Int     @id @default(autoincrement())
   amount Float
-  number_installments Int
-  payment_method String
+  numberInstallments Int
+  paymentMethod String
   date DateTime @default(now())
-  instalments Installment[]
+  installments Installment[]
 }
 
 model Installment {
