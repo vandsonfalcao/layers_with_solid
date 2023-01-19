@@ -12,6 +12,7 @@ datasource db {
 
 model Transaction {
   id    Int     @id @default(autoincrement())
+  code String
   amount Float
   numberInstallments Int
   paymentMethod String
