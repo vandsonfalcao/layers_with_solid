@@ -1,8 +1,11 @@
-import axios from "axios";
 import crypto from "crypto";
 import CreateTransaction from "../src/application/CreateTransaction";
+import GetTransaction from "../src/application/GetTransaction";
+import Transaction from "../src/domain/entity/Transaction";
+import TransactionDatabaseRepository from "../src/infra/repository/TransactionDatabaseRepository";
 
 test("Deve criar a transação com parcelas", async () => {
+	const transactionRepository = new TransactionDatabaseRepository();
 	const uuid = crypto.randomUUID();
 	const input = {
 		code: uuid,
@@ -10,23 +13,21 @@ test("Deve criar a transação com parcelas", async () => {
 		numberInstallments: 12,
 		paymentMethod: "credit_card",
 	};
-	const createTransaction = new CreateTransaction();
+	const createTransaction = new CreateTransaction(transactionRepository);
 	await createTransaction.execution(input);
 
-	const getRes = await axios({
-		url: `http://localhost:3000/transaction/${uuid}`,
-		method: "GET",
-	});
+	const getTransaction = new GetTransaction(transactionRepository);
+	const transaction = await getTransaction.execution(uuid);
 
-	expect(getRes.data).toBeTruthy();
-
-	const { code, amount, paymentMethod, numberInstallments, installments } = getRes.data;
-
-	expect(code).toBe(uuid);
-	expect(amount).toBe(1000);
-	expect(paymentMethod).toBe("credit_card");
-	expect(numberInstallments).toBe(12);
-	expect(installments).toHaveLength(12);
-	expect(installments[0].amount).toBe(83.33);
-	expect(installments[11].amount).toBe(83.37);
+	if (transaction instanceof Transaction) {
+		expect(transaction.code).toBe(uuid);
+		expect(transaction.amount).toBe(1000);
+		expect(transaction.paymentMethod).toBe("credit_card");
+		expect(transaction.numberInstallments).toBe(12);
+		expect(transaction.installments).toHaveLength(12);
+		expect(transaction.installments[0].amount).toBe(83.33);
+		expect(transaction.installments[11].amount).toBe(83.37);
+	} else {
+		expect(transaction).toBeTruthy();
+	}
 });

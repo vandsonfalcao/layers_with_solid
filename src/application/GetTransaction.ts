@@ -1,44 +1,13 @@
-import { PrismaClient } from "@prisma/client";
-
-type Output = {
-	code: string;
-	amount: number;
-	numberInstallments: number;
-	paymentMethod: string;
-	date: string;
-	installments: { number: number; amount: number }[];
-} | null;
+import Transaction from "../domain/entity/Transaction";
+import TransactionRepository from "../domain/repository/TransactionRepository";
 
 export default class GetTransaction {
-	protected prisma;
 
-	constructor() {
-		this.prisma = new PrismaClient();
+	constructor(readonly transactionRepository: TransactionRepository) {
 	}
 
-	async execution(input: string): Promise<Output> {
-		const transaction = await this.prisma.transaction.findFirst({
-			where: {
-				code: input,
-			},
-			include: {
-				installments: true,
-			},
-		});
-
-		this.prisma.$disconnect();
-		console.log({ found: transaction });
-		if (!transaction) {
-			return null;
-		}
-		const { amount, code, date, installments, numberInstallments, paymentMethod } = transaction;
-		return {
-			amount,
-			code,
-			date: date.toDateString(),
-			installments,
-			numberInstallments,
-			paymentMethod,
-		};
+	async execution(code: string): Promise<Transaction | null> {
+		const transaction = await this.transactionRepository.get(code);
+		return transaction;
 	}
 }
